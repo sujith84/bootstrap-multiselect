@@ -41,7 +41,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-!function ($) {
+define(['knockout', 'jquery'], function (ko, $) {
     "use strict";// jshint ;_;
 
     if (typeof ko !== 'undefined' && ko.bindingHandlers && !ko.bindingHandlers.multiselect) {
@@ -348,7 +348,7 @@
              * @param {jQuery} event
              */
             onDropdownShown: function(event) {
-
+                $(".multiselect-search:visible").focus();
             },
             /**
              * Triggered after the dropdown is hidden.
@@ -650,6 +650,13 @@
                 }
             });
 
+            $('li a', this.$ul).on('keyup', function (e) {
+                var keyCode = e.keyCode;
+                if ((keyCode >= 65 && keyCode <= 90) || (keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105)) {
+                    $(".multiselect-search:visible").focus();
+                }
+            });
+
             $('li a', this.$ul).on('touchstart click', $.proxy(function(event) {
                 event.stopPropagation();
 
@@ -710,6 +717,9 @@
             // Keyboard support.
             this.$container.off('keydown.multiselect').on('keydown.multiselect', $.proxy(function(event) {
                 if ($('input[type="text"]', this.$container).is(':focus')) {
+                    if (event.keyCode === 38 || event.keyCode === 40) {
+                        $(this.$container).find("li:not(.divider):not(.disabled):not(.multiselect-group) a:visible:first").focus();
+                    }
                     return;
                 }
 
@@ -717,7 +727,7 @@
                     this.$button.click();
                 }
                 else {
-                    var $items = $(this.$container).find("li:not(.divider):not(.disabled) a").filter(":visible");
+                    var $items = $(this.$container).find("li:not(.divider):not(.disabled):not(.multiselect-group) a").filter(":visible");
 
                     if (!$items.length) {
                         return;
@@ -926,7 +936,7 @@
 
             var classes = this.options.optionClass(group);
             $li.addClass(classes);
-            $li.attr("title", groupName);
+            $li.attr("title", label);
 
             if (this.options.enableHTML) {
                 $('label b', $li).html(" " + label);
@@ -1828,4 +1838,4 @@
         $("select[data-role=multiselect]").multiselect();
     });
 
-}(window.jQuery);
+});
